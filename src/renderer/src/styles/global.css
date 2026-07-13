@@ -1,0 +1,79 @@
+:root {
+  /* Cinematic dark palette, tuned for a 50" screen viewed from a couch. */
+  --bg: #08090d;
+  --bg-grad-a: #0e1119;
+  --bg-grad-b: #08090d;
+  --surface: #141824;
+  --surface-2: #1c2130;
+  --surface-3: #262d40;
+  --text: #f3f5fa;
+  --text-dim: #aeb6c8;
+  --text-faint: #6c7488;
+  --accent: #7c5cff;
+  --accent-2: #57e0c8;
+  --focus: #ffffff;
+  --danger: #ff5d5d;
+  --ok: #38d17a;
+
+  /* Scale everything for 10-foot legibility. */
+  --radius: 16px;
+  --radius-lg: 22px;
+  --sidebar-w: 108px;
+  --sidebar-w-open: 260px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: radial-gradient(120% 120% at 20% 0%, var(--bg-grad-a) 0%, var(--bg-grad-b) 55%);
+  color: var(--text);
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  font-size: 20px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+/* Hide the mouse cursor after inactivity for a true TV feel (toggled via body class). */
+body.hide-cursor,
+body.hide-cursor * {
+  cursor: none !important;
+}
+
+h1 { font-size: 40px; font-weight: 700; letter-spacing: -0.5px; }
+h2 { font-size: 26px; font-weight: 650; }
+h3 { font-size: 21px; font-weight: 600; }
+
+::-webkit-scrollbar { width: 0; height: 0; }
+
+button {
+  font-family: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* Norigin focus ring baseline — individual components refine this. */
+.focusable {
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  outline: none;
+}
+.focusable.focused {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 3px var(--focus), 0 18px 44px rgba(0, 0, 0, 0.55);
+  z-index: 5;
+}

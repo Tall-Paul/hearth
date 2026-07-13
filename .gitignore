@@ -1,0 +1,14 @@
+node_modules/
+out/
+dist/
+release/
+.DS_Store
+*.log
+*.tsbuildinfo
+eout.log
+eerr.log
+ui.png
+screenshot.png
+frame-check*.png
+# Local runtime config with API keys — never commit
+hearth-config.json
