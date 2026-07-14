@@ -1,6 +1,6 @@
 {
   "name": "hearth",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A 10-foot TV / big-screen media & launcher interface for Windows",
   "main": "./out/main/index.js",
   "author": "",
@@ -33,7 +33,7 @@
     "@types/react-dom": "^19.0.2",
     "@types/ws": "^8.5.13",
     "@vitejs/plugin-react": "^4.3.4",
-    "electron": "^34.0.0",
+    "electron": "https://github.com/castlabs/electron-releases#v43.0.0+wvcus",
     "electron-builder": "^25.1.8",
     "electron-vite": "^2.3.0",
     "react": "^19.0.0",
