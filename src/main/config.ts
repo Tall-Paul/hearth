@@ -41,7 +41,12 @@ const DEFAULT_APPS: HearthConfig['apps'] = [
   { id: 'minecraft-bedrock', name: 'Minecraft', icon: '⛏️', kind: 'uwp', target: 'Microsoft.MinecraftUWP_8wekyb3d8bbwe!Game', color: '#6cbb3c' },
   { id: 'youtube', name: 'YouTube', icon: '▶️', kind: 'webapp', target: 'https://www.youtube.com/tv', color: '#ff0000' },
   { id: 'disney', name: 'Disney+', icon: '🏰', kind: 'uwp', target: 'Disney.37853FC22B2CE_6rarf9sa4v8jt!App', color: '#113ccf' },
-  { id: 'spotify', name: 'Spotify', icon: '🎵', kind: 'webapp', target: 'https://open.spotify.com', color: '#1db954' }
+  { id: 'spotify', name: 'Spotify', icon: '🎵', kind: 'webapp', target: 'https://open.spotify.com', color: '#1db954' },
+  // BBC iPlayer and All4 are UK-region-locked Store listings we couldn't verify an
+  // AppUserModelID for from this machine, so these use the chromeless-web fallback instead.
+  { id: 'bbc-iplayer', name: 'BBC iPlayer', icon: '📡', kind: 'webapp', target: 'https://www.bbc.co.uk/iplayer', color: '#f54997' },
+  { id: 'channel4', name: 'Channel 4', icon: '4️⃣', kind: 'webapp', target: 'https://www.channel4.com/streaming/watch', color: '#e6224b' },
+  { id: 'nowtv', name: 'NOW TV', icon: '☁️', kind: 'exe', target: '%APPDATA%\\NOW TV\\NOW TV Player\\NOW TV Player.exe', color: '#3ec1f2' }
 ]
 
 let cached: HearthConfig | null = null
@@ -74,6 +79,13 @@ export function loadConfig(): HearthConfig {
   // Seed default app shortcuts on first run so the Apps screen isn't empty.
   if (!existsSync(path) && config.apps.length === 0) {
     config.apps = z.array(appShortcutSchema).parse(DEFAULT_APPS)
+  }
+  // Backfill any default tiles introduced since this config was created (e.g. new
+  // streaming services added in an update) so existing installs pick them up too.
+  const existingIds = new Set(config.apps.map((a) => a.id))
+  const newDefaults = DEFAULT_APPS.filter((a) => !existingIds.has(a.id))
+  if (newDefaults.length > 0) {
+    config.apps = [...config.apps, ...z.array(appShortcutSchema).parse(newDefaults)]
   }
   cached = config
   return config

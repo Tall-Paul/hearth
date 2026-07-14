@@ -3,6 +3,11 @@ import { spawn } from 'child_process'
 import { existsSync } from 'fs'
 import type { AppShortcut } from '../../shared/types'
 
+/** Expands %APPDATA%-style tokens — some installers (e.g. NOW TV Player) install per-user under AppData. */
+function expandEnvTokens(path: string): string {
+  return path.replace(/%([^%]+)%/g, (match, name: string) => process.env[name] ?? match)
+}
+
 function findEdge(): string | null {
   const candidates = [
     'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
@@ -93,7 +98,7 @@ export async function launchApp(app: AppShortcut): Promise<void> {
       return
     }
     case 'exe': {
-      const child = spawn(app.target, [], { detached: true, stdio: 'ignore' })
+      const child = spawn(expandEnvTokens(app.target), [], { detached: true, stdio: 'ignore' })
       child.unref()
       return
     }
