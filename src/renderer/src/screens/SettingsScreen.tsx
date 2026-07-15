@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Focusable } from '../components/Focusable'
-import type { AppShortcut, HearthConfig, MediaFolder, MpvStatus } from '../types'
+import type { AppShortcut, HearthConfig, MediaFolder, MpvStatus, UpdateStatus } from '../types'
 
 interface Props {
   config: HearthConfig
@@ -35,6 +35,7 @@ export function SettingsScreen({ config, onSaved, showToast }: Props) {
   const [configPath, setConfigPath] = useState('')
   const [mpv, setMpv] = useState<MpvStatus | null>(null)
   const [mpvBusy, setMpvBusy] = useState(false)
+  const [update, setUpdate] = useState<UpdateStatus | null>(null)
 
   const refreshMpv = async (): Promise<MpvStatus> => {
     const status = await window.api.checkMpv()
@@ -47,6 +48,8 @@ export function SettingsScreen({ config, onSaved, showToast }: Props) {
     void window.api.getRemoteUrl().then(setRemoteUrl)
     void window.api.getConfigPath().then(setConfigPath)
     void refreshMpv()
+    void window.api.getUpdateStatus().then(setUpdate)
+    return window.api.onUpdateStatus(setUpdate)
   }, [])
 
   const save = async (): Promise<void> => {
@@ -116,6 +119,44 @@ export function SettingsScreen({ config, onSaved, showToast }: Props) {
       </div>
 
       <div className="form">
+        {/* ---- version / updates ---- */}
+        <div className="admin-card">
+          <div className="admin-card-head">
+            <span className="admin-card-title">🔥 Hearth version</span>
+            {update && (
+              <span className={`status-pill ${update.error ? 'bad' : update.downloaded ? 'ok' : ''}`}>
+                {update.checking
+                  ? 'Checking…'
+                  : update.downloaded
+                    ? `Update ready · v${update.latestVersion}`
+                    : update.downloading
+                      ? `Downloading v${update.latestVersion}…`
+                      : update.error
+                        ? 'Error'
+                        : 'Up to date'}
+              </span>
+            )}
+          </div>
+          <div className="admin-card-body">
+            <div className="mono">v{update?.currentVersion ?? '…'}</div>
+            {update?.error && (
+              <div className="hint" style={{ textAlign: 'left', margin: '8px 0 0' }}>
+                {update.error}
+              </div>
+            )}
+            <div className="row2" style={{ marginTop: 12 }}>
+              <Focusable className="btn" onEnter={() => void window.api.checkForUpdates()}>
+                ↻ Check for updates
+              </Focusable>
+              {update?.downloaded && (
+                <Focusable className="btn primary" onEnter={() => void window.api.installUpdate()}>
+                  ⬇ Update now (restarts Hearth)
+                </Focusable>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* ---- mpv ---- */}
         <div className="admin-card">
           <div className="admin-card-head">

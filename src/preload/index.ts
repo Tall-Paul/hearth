@@ -8,7 +8,8 @@ import type {
   PlaybackState,
   RemoteCommand,
   MpvStatus,
-  InstallResult
+  InstallResult,
+  UpdateStatus
 } from '../shared/types'
 
 const api = {
@@ -44,6 +45,11 @@ const api = {
   installMpv: (): Promise<InstallResult> => ipcRenderer.invoke('system:installMpv'),
   openExternal: (url: string): Promise<void> => ipcRenderer.invoke('system:openExternal', url),
 
+  // Updates
+  getUpdateStatus: (): Promise<UpdateStatus> => ipcRenderer.invoke('update:get'),
+  checkForUpdates: (): Promise<void> => ipcRenderer.invoke('update:check'),
+  installUpdate: (): Promise<void> => ipcRenderer.invoke('update:install'),
+
   // Remote
   getRemoteUrl: (): Promise<string> => ipcRenderer.invoke('remote:url'),
 
@@ -62,6 +68,11 @@ const api = {
     const listener = (_e: unknown, msg: string): void => cb(msg)
     ipcRenderer.on('mpv:error', listener)
     return () => ipcRenderer.removeListener('mpv:error', listener)
+  },
+  onUpdateStatus: (cb: (s: UpdateStatus) => void): (() => void) => {
+    const listener = (_e: unknown, s: UpdateStatus): void => cb(s)
+    ipcRenderer.on('update:status', listener)
+    return () => ipcRenderer.removeListener('update:status', listener)
   }
 }
 

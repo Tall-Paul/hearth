@@ -14,7 +14,8 @@ import { mpv } from './services/mpv'
 import { launchApp } from './services/apps'
 import { startRemoteServer, remoteUrl } from './services/remote-server'
 import { checkMpv, installMpv } from './services/system'
-import type { MpvStatus, InstallResult } from '../shared/types'
+import { getUpdateStatus, checkForUpdates, installUpdate } from './services/updater'
+import type { MpvStatus, InstallResult, UpdateStatus } from '../shared/types'
 
 function ok<T>(data: T): ApiResult<T> {
   return { ok: true, data }
@@ -173,6 +174,11 @@ export function registerIpc(win: BrowserWindow): void {
   })
 
   ipcMain.handle('system:openExternal', (_e, url: string): Promise<void> => shell.openExternal(url))
+
+  // ---- Updates ----
+  ipcMain.handle('update:get', (): UpdateStatus => getUpdateStatus())
+  ipcMain.handle('update:check', (): void => checkForUpdates())
+  ipcMain.handle('update:install', (): void => installUpdate())
 
   // ---- Remote info ----
   ipcMain.handle('remote:url', (): string => remoteUrl(loadConfig().remotePort))
