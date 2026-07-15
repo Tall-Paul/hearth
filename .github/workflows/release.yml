@@ -34,12 +34,14 @@ jobs:
       - run: npm run typecheck
 
       # Caches an EVS session token on this runner so scripts/vmp-sign.js (an
-      # electron-builder afterPack hook) can sign the packaged app without
-      # re-authenticating itself.
+      # electron-builder afterSign hook) can sign the packaged app without
+      # re-authenticating itself. --no-ask is a global flag on account.py, so it
+      # must come BEFORE the reauth subcommand, not after — confirmed via
+      # `python -m castlabs_evs.account -h` after guessing wrong once.
       - name: Authenticate with castLabs EVS
         run: |
           pip install --upgrade castlabs-evs
-          python -m castlabs_evs.account reauth --no-ask
+          python -m castlabs_evs.account --no-ask reauth -A "$env:EVS_ACCOUNT_NAME" -P "$env:EVS_PASSWD"
 
       - name: Build and publish to GitHub Releases
         run: npx electron-vite build && npx electron-builder --publish always
