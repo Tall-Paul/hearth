@@ -146,3 +146,14 @@ export interface ApiResult<T> {
   data?: T
   error?: string
 }
+
+export interface UpdateStatus {
+  currentVersion: string
+  checking: boolean
+  available: boolean
+  downloading: boolean
+  downloaded: boolean
+  latestVersion?: string
+  error?: string
+  lastChecked?: number
+}

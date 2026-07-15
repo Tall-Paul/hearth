@@ -1,33 +1,11 @@
 import { app, BrowserWindow, shell, components } from 'electron'
-import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
 import { loadConfig } from './config'
 import { registerIpc } from './ipc'
 import { stopRemoteServer } from './services/remote-server'
 import { mpv } from './services/mpv'
+import { initUpdater } from './services/updater'
 import { blog } from './boot-log'
-
-const UPDATE_CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000 // 4 hours
-
-/** Checks GitHub Releases for a newer tagged build and installs it silently in the background. */
-function setupAutoUpdater(): void {
-  if (process.env['ELECTRON_RENDERER_URL']) return // skip in dev (no packaged app-update.yml)
-  autoUpdater.autoDownload = true
-  autoUpdater.autoInstallOnAppQuit = true
-  autoUpdater.on('error', (err) => blog('autoUpdater error', err instanceof Error ? err.message : String(err)))
-  autoUpdater.on('checking-for-update', () => blog('autoUpdater: checking for update'))
-  autoUpdater.on('update-available', (info) => blog('autoUpdater: update available', info.version))
-  autoUpdater.on('update-not-available', () => blog('autoUpdater: up to date'))
-  autoUpdater.on('update-downloaded', (info) =>
-    blog('autoUpdater: downloaded, installs on next restart', info.version)
-  )
-
-  const check = (): void => {
-    autoUpdater.checkForUpdates().catch((err) => blog('autoUpdater check failed', String(err)))
-  }
-  check()
-  setInterval(check, UPDATE_CHECK_INTERVAL_MS)
-}
 
 let mainWindow: BrowserWindow | null = null
 
@@ -119,7 +97,7 @@ function createWindow(): void {
 app.whenReady().then(() => {
   blog('app ready')
   createWindow()
-  setupAutoUpdater()
+  if (mainWindow) initUpdater(mainWindow)
 
   // Experimental (widevine-embed branch): triggers the Widevine CDM download/install
   // on first run. Non-blocking — embedded DRM tiles just won't play until this resolves.
