@@ -14,7 +14,8 @@ const KIND_LABEL: Record<string, string> = {
   webapp: 'web',
   url: 'browser',
   uwp: 'app',
-  exe: 'exe'
+  exe: 'exe',
+  embed: 'in-app'
 }
 
 export function SettingsScreen({ config, onSaved, showToast }: Props) {

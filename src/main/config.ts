@@ -35,8 +35,8 @@ const configSchema = z.object({
 })
 
 const DEFAULT_APPS: HearthConfig['apps'] = [
-  // EXPERIMENTAL (widevine-embed branch): these three load inside Hearth's own window
-  // instead of launching the native Store app, to test truly chrome-free DRM playback.
+  // These load inside Hearth's own window instead of launching the native Store app —
+  // see src/main/services/embed.ts — for a genuinely title-bar-free player.
   { id: 'netflix', name: 'Netflix', icon: '🎬', kind: 'embed', target: 'https://www.netflix.com', color: '#e50914' },
   { id: 'prime', name: 'Prime Video', icon: '📺', kind: 'embed', target: 'https://www.primevideo.com', color: '#00a8e1' },
   { id: 'geforce', name: 'GeForce Now', icon: '🎮', kind: 'webapp', target: 'https://play.geforcenow.com', color: '#76b900' },
@@ -82,13 +82,21 @@ export function loadConfig(): HearthConfig {
   if (!existsSync(path) && config.apps.length === 0) {
     config.apps = z.array(appShortcutSchema).parse(DEFAULT_APPS)
   }
-  // Backfill any default tiles introduced since this config was created (e.g. new
-  // streaming services added in an update) so existing installs pick them up too.
+  // Keep known default tiles in sync with their current definition — kind/target/icon
+  // can change between versions (e.g. Netflix moving from launching the native Store
+  // app to an embedded in-window DRM player), and without this an existing config's
+  // stale 'uwp' entry would silently shadow the new behavior forever. Only `enabled`
+  // is ever user-editable via the UI, so that's the only field preserved from the
+  // existing entry; everything else is resynced. New tiles get appended too.
+  const defaultsById = new Map(DEFAULT_APPS.map((a) => [a.id, a]))
   const existingIds = new Set(config.apps.map((a) => a.id))
-  const newDefaults = DEFAULT_APPS.filter((a) => !existingIds.has(a.id))
-  if (newDefaults.length > 0) {
-    config.apps = [...config.apps, ...z.array(appShortcutSchema).parse(newDefaults)]
-  }
+  config.apps = z.array(appShortcutSchema).parse([
+    ...config.apps.map((a) => {
+      const def = defaultsById.get(a.id)
+      return def ? { ...def, enabled: a.enabled } : a
+    }),
+    ...DEFAULT_APPS.filter((a) => !existingIds.has(a.id))
+  ])
   cached = config
   return config
 }
