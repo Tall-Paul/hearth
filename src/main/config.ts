@@ -21,7 +21,17 @@ const appShortcutSchema = z.object({
   target: z.string(),
   kind: z.enum(['exe', 'uwp', 'webapp', 'url', 'embed']),
   color: z.string().optional(),
-  enabled: z.boolean().default(true)
+  enabled: z.boolean().default(true),
+  favourite: z.boolean().optional()
+})
+
+const watchEntrySchema = z.object({
+  path: z.string(),
+  title: z.string(),
+  playedAt: z.number(),
+  showId: z.string(),
+  season: z.number(),
+  episode: z.number()
 })
 
 const configSchema = z.object({
@@ -31,7 +41,9 @@ const configSchema = z.object({
   apps: z.array(appShortcutSchema).default([]),
   mpvPath: z.string().default('mpv'),
   remotePort: z.number().int().default(842),
-  kiosk: z.boolean().default(true)
+  kiosk: z.boolean().default(true),
+  favouriteMediaIds: z.array(z.string()).default([]),
+  watchHistory: z.array(watchEntrySchema).default([])
 })
 
 const DEFAULT_APPS: HearthConfig['apps'] = [
@@ -93,7 +105,7 @@ export function loadConfig(): HearthConfig {
   config.apps = z.array(appShortcutSchema).parse([
     ...config.apps.map((a) => {
       const def = defaultsById.get(a.id)
-      return def ? { ...def, enabled: a.enabled } : a
+      return def ? { ...def, enabled: a.enabled, favourite: a.favourite } : a
     }),
     ...DEFAULT_APPS.filter((a) => !existingIds.has(a.id))
   ])

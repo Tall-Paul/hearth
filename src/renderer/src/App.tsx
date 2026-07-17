@@ -67,11 +67,33 @@ export function App() {
   const navigate = useCallback((id: ScreenId) => setScreen(id), [])
 
   const playFile = useCallback(
-    async (item: { path: string; title: string }) => {
-      const res = await window.api.playFile(item.path, item.title)
+    async (item: {
+      path: string
+      title: string
+      showId?: string
+      season?: number
+      episode?: number
+    }) => {
+      const watch =
+        item.showId !== undefined && item.season !== undefined && item.episode !== undefined
+          ? { showId: item.showId, season: item.season, episode: item.episode }
+          : undefined
+      const res = await window.api.playFile(item.path, item.title, watch)
       if (!res.ok) showToast(res.error ?? 'Could not start playback', true)
     },
     [showToast]
+  )
+
+  const toggleFavouriteMedia = useCallback(
+    async (id: string) => {
+      if (!config) return
+      const has = config.favouriteMediaIds.includes(id)
+      const next = has
+        ? config.favouriteMediaIds.filter((x) => x !== id)
+        : [...config.favouriteMediaIds, id]
+      setConfig(await window.api.saveConfig({ favouriteMediaIds: next }))
+    },
+    [config]
   )
 
   const launchApp = useCallback(
@@ -167,14 +189,38 @@ export function App() {
       <Sidebar current={screen} onNavigate={navigate} />
       <main className="content">
         {screen === 'home' && (
-          <HomeScreen apps={enabledApps} library={library} onLaunch={launchApp} onPlay={playFile} onNavigate={navigate} />
+          <HomeScreen
+            apps={enabledApps}
+            library={library}
+            onLaunch={launchApp}
+            onPlay={playFile}
+            onNavigate={navigate}
+            favouriteMediaIds={config?.favouriteMediaIds ?? []}
+            watchHistory={config?.watchHistory ?? []}
+          />
         )}
         {screen === 'apps' && <AppsScreen apps={enabledApps} onLaunch={launchApp} />}
         {screen === 'films' && (
-          <FilmsScreen movies={library.movies} loading={libLoading} error={libError} onPlay={playFile} onRefresh={scan} />
+          <FilmsScreen
+            movies={library.movies}
+            loading={libLoading}
+            error={libError}
+            onPlay={playFile}
+            onRefresh={scan}
+            favouriteIds={config?.favouriteMediaIds ?? []}
+            onToggleFavourite={toggleFavouriteMedia}
+          />
         )}
         {screen === 'tv' && (
-          <TVScreen shows={library.shows} loading={libLoading} error={libError} onPlay={playFile} onRefresh={scan} />
+          <TVScreen
+            shows={library.shows}
+            loading={libLoading}
+            error={libError}
+            onPlay={playFile}
+            onRefresh={scan}
+            favouriteIds={config?.favouriteMediaIds ?? []}
+            onToggleFavourite={toggleFavouriteMedia}
+          />
         )}
         {screen === 'discover' && (
           <DiscoverScreen

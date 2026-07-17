@@ -21,6 +21,18 @@ export interface AppShortcut {
   color?: string
   /** Whether the tile is shown on Home/Apps. Defaults to true. */
   enabled?: boolean
+  /** Shown in Home's Favourites row. */
+  favourite?: boolean
+}
+
+/** One play of a show's episode, used to resolve "next episode" for Continue Watching. */
+export interface WatchEntry {
+  path: string
+  title: string
+  playedAt: number
+  showId: string
+  season: number
+  episode: number
 }
 
 export interface MpvStatus {
@@ -59,6 +71,10 @@ export interface HearthConfig {
   remotePort: number
   /** Start the window fullscreen/kiosk. */
   kiosk: boolean
+  /** ids of favourited Movies/Shows (Movie.id / Show.id), for Home's Favourites row. */
+  favouriteMediaIds: string[]
+  /** Most recent episode played per show, for Continue Watching. */
+  watchHistory: WatchEntry[]
 }
 
 export interface Movie {

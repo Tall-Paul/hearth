@@ -37,8 +37,11 @@ const api = {
   listInstalledApps: (): Promise<ApiResult<InstalledApp[]>> => ipcRenderer.invoke('apps:listInstalled'),
 
   // Playback
-  playFile: (path: string, title?: string): Promise<ApiResult<null>> =>
-    ipcRenderer.invoke('play:file', path, title),
+  playFile: (
+    path: string,
+    title?: string,
+    watch?: { showId: string; season: number; episode: number }
+  ): Promise<ApiResult<null>> => ipcRenderer.invoke('play:file', path, title, watch),
   playCommand: (action: string, value?: number): Promise<ApiResult<null>> =>
     ipcRenderer.invoke('play:command', action, value),
   getPlaybackState: (): Promise<PlaybackState> => ipcRenderer.invoke('play:getState'),

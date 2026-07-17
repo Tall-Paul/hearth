@@ -9,9 +9,19 @@ interface Props {
   error: string | null
   onPlay: (item: { path: string; title: string }) => void
   onRefresh: () => void
+  favouriteIds: string[]
+  onToggleFavourite: (id: string) => void
 }
 
-export function FilmsScreen({ movies, loading, error, onPlay, onRefresh }: Props) {
+export function FilmsScreen({
+  movies,
+  loading,
+  error,
+  onPlay,
+  onRefresh,
+  favouriteIds,
+  onToggleFavourite
+}: Props) {
   return (
     <div>
       <div className="screen-head">
@@ -49,6 +59,8 @@ export function FilmsScreen({ movies, loading, error, onPlay, onRefresh }: Props
             title={m.title}
             subtitle={[m.year, formatSize(m.sizeBytes)].filter(Boolean).join(' · ')}
             onEnter={() => onPlay({ path: m.path, title: m.title })}
+            favourited={favouriteIds.includes(m.id)}
+            onToggleFavourite={() => onToggleFavourite(m.id)}
           />
         ))}
       </div>

@@ -17,7 +17,8 @@ export type {
   MpvStatus,
   InstallResult,
   UpdateStatus,
-  InstalledApp
+  InstalledApp,
+  WatchEntry
 } from '../../shared/types'
 
 import type { Library, Episode } from '../../shared/types'

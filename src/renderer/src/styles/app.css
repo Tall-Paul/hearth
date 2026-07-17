@@ -110,10 +110,29 @@
 .card {
   flex-shrink: 0;
   width: 240px;
+  position: relative;
+}
+.card .card-play {
+  display: block;
   border-radius: var(--radius);
   background: var(--surface);
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.card .fav-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  font-size: 17px;
+  color: #ffd75e;
+  z-index: 6;
 }
 .card .art {
   height: 135px;

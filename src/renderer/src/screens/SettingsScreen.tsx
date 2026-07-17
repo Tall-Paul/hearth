@@ -104,6 +104,9 @@ export function SettingsScreen({ config, onSaved, showToast }: Props) {
   const toggleApp = (id: string): void =>
     setApps((prev) => prev.map((a) => (a.id === id ? { ...a, enabled: a.enabled === false } : a)))
 
+  const toggleFavouriteApp = (id: string): void =>
+    setApps((prev) => prev.map((a) => (a.id === id ? { ...a, favourite: !a.favourite } : a)))
+
   const addInstalledApp = (installed: InstalledApp): void => {
     setApps((prev) => [
       ...prev,
@@ -298,6 +301,9 @@ export function SettingsScreen({ config, onSaved, showToast }: Props) {
                   <span className="tile-row-icon"><IconGlyph icon={app.icon} /></span>
                   <span className="tile-row-name" style={{ flex: 1 }}>{app.name}</span>
                   <span className="tile-row-kind">{KIND_LABEL[app.kind] ?? app.kind}</span>
+                  <Focusable className="btn" onEnter={() => toggleFavouriteApp(app.id)}>
+                    {app.favourite ? '★' : '☆'}
+                  </Focusable>
                   <Focusable className="btn" onEnter={() => toggleApp(app.id)}>
                     <span className={`check ${on ? 'on' : ''}`}>{on ? '✓' : ''}</span> {on ? 'On' : 'Off'}
                   </Focusable>

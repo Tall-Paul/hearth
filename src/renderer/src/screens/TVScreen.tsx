@@ -7,11 +7,27 @@ interface Props {
   shows: Show[]
   loading: boolean
   error: string | null
-  onPlay: (item: { path: string; title: string }) => void
+  onPlay: (item: {
+    path: string
+    title: string
+    showId?: string
+    season?: number
+    episode?: number
+  }) => void
   onRefresh: () => void
+  favouriteIds: string[]
+  onToggleFavourite: (id: string) => void
 }
 
-export function TVScreen({ shows, loading, error, onPlay, onRefresh }: Props) {
+export function TVScreen({
+  shows,
+  loading,
+  error,
+  onPlay,
+  onRefresh,
+  favouriteIds,
+  onToggleFavourite
+}: Props) {
   const [openShow, setOpenShow] = useState<Show | null>(null)
   const episodeCount = shows.reduce(
     (n, s) => n + s.seasons.reduce((m, season) => m + season.episodes.length, 0),
@@ -45,7 +61,13 @@ export function TVScreen({ shows, loading, error, onPlay, onRefresh }: Props) {
                   title={ep.title}
                   subtitle={`S${season.season}E${ep.episode}`}
                   onEnter={() =>
-                    onPlay({ path: ep.path, title: `${openShow.title} — S${season.season}E${ep.episode}` })
+                    onPlay({
+                      path: ep.path,
+                      title: `${openShow.title} — S${season.season}E${ep.episode}`,
+                      showId: openShow.id,
+                      season: season.season,
+                      episode: ep.episode
+                    })
                   }
                 />
               ))}
@@ -96,6 +118,8 @@ export function TVScreen({ shows, loading, error, onPlay, onRefresh }: Props) {
             title={s.title}
             subtitle={`${s.seasons.length} season${s.seasons.length === 1 ? '' : 's'}`}
             onEnter={() => setOpenShow(s)}
+            favourited={favouriteIds.includes(s.id)}
+            onToggleFavourite={() => onToggleFavourite(s.id)}
           />
         ))}
       </div>

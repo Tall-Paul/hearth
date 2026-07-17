@@ -137,14 +137,29 @@ export function registerIpc(win: BrowserWindow): void {
   })
 
   // ---- Playback (mpv) ----
-  ipcMain.handle('play:file', async (_e, path: string, title?: string): Promise<ApiResult<null>> => {
-    try {
-      await mpv.play(path, title)
-      return ok(null)
-    } catch (err) {
-      return fail(err)
+  ipcMain.handle(
+    'play:file',
+    async (
+      _e,
+      path: string,
+      title?: string,
+      watch?: { showId: string; season: number; episode: number }
+    ): Promise<ApiResult<null>> => {
+      try {
+        await mpv.play(path, title)
+        if (watch) {
+          const c = loadConfig()
+          const history = c.watchHistory.filter((w) => w.showId !== watch.showId)
+          history.push({ path, title: title ?? '', playedAt: Date.now(), ...watch })
+          // Only the most recent show progress is needed — cap how many distinct shows we track.
+          saveConfig({ watchHistory: history.slice(-30) })
+        }
+        return ok(null)
+      } catch (err) {
+        return fail(err)
+      }
     }
-  })
+  )
 
   ipcMain.handle('play:command', async (_e, action: string, value?: number): Promise<ApiResult<null>> => {
     try {
